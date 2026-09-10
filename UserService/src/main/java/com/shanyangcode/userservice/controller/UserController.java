@@ -1,0 +1,106 @@
+package com.shanyangcode.userservice.controller;
+
+
+import com.shanyangcode.common.common.BaseResponse;
+import com.shanyangcode.common.common.ErrorCode;
+import com.shanyangcode.common.common.ResultUtils;
+import com.shanyangcode.common.exception.ThrowUtils;
+import com.shanyangcode.common.utils.JwtUtil;
+
+import com.shanyangcode.userservice.constant.UserConstant;
+
+import com.shanyangcode.userservice.model.dto.UpdateAvatarRequest;
+import com.shanyangcode.initproject.model.dto.UserLoginCodeRequest;
+import com.shanyangcode.initproject.model.dto.UserLoginPasswordRequest;
+import com.shanyangcode.initproject.model.dto.UserRegisterRequest;
+import com.shanyangcode.initproject.model.vo.LoginAndRegisterResponse;
+import com.shanyangcode.initproject.model.vo.TokenResponse;
+import com.shanyangcode.userservice.model.vo.UploadUrlResponse;
+import com.shanyangcode.initproject.service.UserService;
+import io.jsonwebtoken.Claims;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/user")
+@Validated
+public class UserController {
+
+    @Resource
+    private com.shanyangcode.initproject.service.UserService userService;
+
+    @GetMapping("/sendCaptcha")
+    public BaseResponse<String> sendCaptcha(@NotBlank(message = "邮箱不能为空") @Email(message = "邮箱格式不正确")  @RequestParam String targetEmail) {
+
+        userService.sendCaptcha(targetEmail);
+        return ResultUtils.success(UserConstant.SEND_EMAIL_SUCCESS);
+    }
+
+
+    @PostMapping("/register")
+    public BaseResponse<LoginAndRegisterResponse> register(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
+        return ResultUtils.success(userService.register(userRegisterRequest));
+    }
+
+
+    @PostMapping("/login/password")
+    public BaseResponse<LoginAndRegisterResponse> loginPassword(@Valid @RequestBody UserLoginPasswordRequest userLoginPasswordRequest) {
+        return ResultUtils.success(userService.loginPassword(userLoginPasswordRequest));
+    }
+
+
+    @PostMapping("/login/code")
+    public BaseResponse<LoginAndRegisterResponse> loginCode(@Valid @RequestBody com.shanyangcode.initproject.model.dto.UserLoginCodeRequest userLoginCodeRequest) {
+        return ResultUtils.success(userService.loginCode(userLoginCodeRequest));
+    }
+
+
+
+    @GetMapping("/logout")
+    public BaseResponse<Boolean> logout(HttpServletRequest request) {
+        String accessToken = request.getHeader("Access-Token");
+        Claims claims = JwtUtil.parse(accessToken);
+        ThrowUtils.throwIf(claims == null, ErrorCode.NOT_LOGIN_ERROR);
+        return ResultUtils.success(userService.logout(claims.getSubject()));
+    }
+
+
+    @PostMapping("/refresh")
+    public BaseResponse<TokenResponse> refreshToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("Refresh-Token");
+        ThrowUtils.throwIf(StringUtils.isBlank(refreshToken), ErrorCode.PARAMS_ERROR);
+        return ResultUtils.success(userService.refreshToken(refreshToken));
+    }
+
+
+    @GetMapping("/refresh/uri")
+    public BaseResponse<String> refreshUri(@RequestParam Long userId) {
+        return ResultUtils.success(userService.refreshUri(userId));
+    }
+
+
+    @GetMapping("/uploadUrl")
+    public BaseResponse<UploadUrlResponse> getUploadUrl(@RequestParam String fileName) {
+        return ResultUtils.success(userService.uploadUrl(fileName));
+    }
+
+    @PostMapping("/update/avatar")
+    public BaseResponse<Boolean> updateAvatar(@RequestBody UpdateAvatarRequest updateAvatarRequest)  {
+        return ResultUtils.success(userService.updateAvatar(updateAvatarRequest));
+    }
+
+    @GetMapping("/get/nickname")
+    public Map<Long, String> getUserNickName(@RequestParam("sessionId")  Long sessionId) {
+        return userService.getUserNickName(sessionId);
+    }
+}
+
+

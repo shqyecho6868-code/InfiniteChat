@@ -1,0 +1,125 @@
+package com.shanyangcode.realtimeservice.consumer;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
+import com.shanyangcode.common.constant.CommonConstant;
+import com.shanyangcode.common.constant.SessionTypeConstant;
+import com.shanyangcode.common.model.dto.ChatRequest;
+import com.shanyangcode.common.model.dto.MessageBody;
+import com.shanyangcode.common.model.dto.MessageRequest;
+import com.shanyangcode.common.model.vo.MessageResponse;
+import com.shanyangcode.common.utils.FormatDateUtil;
+import com.shanyangcode.realtimeservice.client.AiServiceClient;
+import com.shanyangcode.realtimeservice.client.UserServiceClient;
+import com.shanyangcode.realtimeservice.utils.SnowflakeDynamicUtil;
+import com.shanyangcode.realtimeservice.websocket.ChannelManager;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+@Service
+@Slf4j
+public class ConsumerMessageService {
+
+    @Resource
+    private UserServiceClient userServiceClient;
+
+    @Resource
+    private AiServiceClient aiServiceClient;
+
+    @Resource
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @KafkaListener(topics = "message-topic", groupId = "infinite-chat-push-group-0")
+    public void consume(String message) {
+        System.out.println("收到消息：" + message);
+        MessageRequest messageRequest = JSONUtil.toBean(message, MessageRequest.class);
+        System.out.println("收到消息：" + messageRequest);
+        if (messageRequest.getSessionType() == SessionTypeConstant.SIGNAL_TYPE) {
+            signalMessage(messageRequest);
+        } else if (messageRequest.getSessionType() == SessionTypeConstant.GROUP_TYPE) {
+            groupMessage(messageRequest);
+        } else if (messageRequest.getSessionType() == SessionTypeConstant.ROBOT_TYPE) {
+            aiSignalMessage(messageRequest);
+        }
+    }
+
+    public void signalMessage(MessageRequest messageRequest) {
+        MessageResponse messageResponse = createMessageResponse(messageRequest);
+        pushMessageToUser(messageResponse, messageRequest.getSenderId());
+        pushMessageToUser(messageResponse, messageRequest.getReceiverId());
+    }
+
+    public void aiSignalMessage(MessageRequest messageRequest) {
+        MessageResponse messageResponse = createMessageResponse(messageRequest);
+        messageResponse.setMessageId(SnowflakeDynamicUtil.nextId());
+        // 获取 AI 回复
+        ChatRequest chatRequest = new ChatRequest();
+        chatRequest.setPrompt(messageRequest.getBody().getContent());
+        chatRequest.setSessionId(messageRequest.getSessionId());
+        chatRequest.setUserId(messageRequest.getSenderId());
+        String chat = aiServiceClient.chat(chatRequest);
+
+
+        MessageBody messageBody = messageResponse.getBody();
+        messageBody.setContent(chat);
+        messageResponse.setBody(messageBody);
+        messageResponse.setSenderId(CommonConstant.AI_ID);
+
+        pushMessageToUser(messageResponse, chatRequest.getUserId());
+        BeanUtil.copyProperties(messageResponse,messageRequest);
+
+        kafkaTemplate.send(CommonConstant.KAFKA_MESSAGE_TOPIC_STORE, JSONUtil.toJsonStr(messageRequest)).whenComplete((success, failure) -> {
+            if (failure != null) {
+                // 生产者生产失败
+                System.err.println("生产者生产失败: " + failure.getMessage());
+                // 记录日志、告警、补偿等
+            } else {
+                // 生产者生产成功
+                System.out.println("生产者生产成功，offset: " + success.getRecordMetadata().offset());
+            }
+        });
+    }
+
+    public void groupMessage(MessageRequest messageRequest) {
+        List<Long> receiveUserIds = userServiceClient.getUserIdBySessionId(messageRequest.getSessionId());
+        MessageResponse messageResponse = createMessageResponse(messageRequest);
+        for (Long receiveUserId : receiveUserIds) {
+            pushMessageToUser(messageResponse, receiveUserId);
+        }
+    }
+
+
+    public MessageResponse createMessageResponse(MessageRequest messageRequest) {
+        MessageResponse messageResponse = new MessageResponse();
+        BeanUtil.copyProperties(messageRequest, messageResponse);
+        messageResponse.setCreatedTime(FormatDateUtil.formatDate(messageRequest.getCreatedTime()));
+        return messageResponse;
+
+    }
+
+    public void pushMessageToUser(MessageResponse messageResponse, Long receiverId) {
+        Channel channel = ChannelManager.getChannelByUserId(receiverId.toString());
+        if (channel != null) {
+            TextWebSocketFrame frame = new TextWebSocketFrame(JSONUtil.toJsonStr(messageResponse));
+            channel.writeAndFlush(frame).addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    log.info("消息发送成功: {}", messageResponse);
+                } else {
+                    log.info("消息发送失败: {}", future.cause() != null ? future.cause().getMessage() : "未知错误");
+                }
+            });
+        } else {
+            log.info("channel 不存在");
+        }
+    }
+
+}

@@ -1,0 +1,23 @@
+# Prometheus 配置文件
+global:
+  scrape_interval: 15s      # 全局抓取间隔
+  evaluation_interval: 15s  # 规则评估间隔
+
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']  # 容器内部通过服务名访问
+
+  # node_exporter 监控
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Spring Boot 应用监控
+  - job_name: 'ai-service'
+    metrics_path: '/api/actuator/prometheus'  # Spring Boot Actuator 端点
+    static_configs:
+      - targets: ['host.docker.internal:10010']  # 容器访问宿主机服务
+    scrape_interval: 10s  # 每 10 秒抓取一次
+    scrape_timeout: 10s   # 抓取超时时间

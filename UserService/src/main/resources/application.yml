@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: UserService
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:49152/InfiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: gK3T9n%q2M@j7Z4
+  data:
+    redis:
+      database: 2
+      host: localhost
+      port: 59000
+      password: e65K4t8w2
+      timeout: 30000
+      # 配置 redis 连接池
+      lettuce:
+        pool:
+          # 链接池中最小的空闲链接 默认为 0
+          min-idle: 4
+          # 链接池中最大的空闲连接 默认为 8
+          max-idle: 8
+          #连接池中最大数据库链接数 默认为 8
+          max-active: 8
+          #连接池最大阻塞等待时间
+          max-wait: 5000ms
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1812872969@qq.com
+    password: fcmfmmbiwefzecgc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # Kafka配置
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: latest
+      enable-auto-commit: true
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:18375
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
+
+server:
+  port: 8104
+
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+
+
+
+
+# Snowflake ID生成器配置
+snowflake:
+  workerId: 1
+  datacenterId: 1

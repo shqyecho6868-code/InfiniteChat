@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI 对话助手</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9f9f9;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #ddd;
+            --user-msg-bg: #e3f2fd;
+            --ai-msg-bg: #f1f1f1;
+            --button-bg: #1976d2;
+            --button-hover: #1565c0;
+            --sidebar-bg: #f5f5f5;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --border-color: #444;
+            --user-msg-bg: #2a3f5f;
+            --ai-msg-bg: #3a3a3a;
+            --sidebar-bg: #252525;
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        /* 会话侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: var(--sidebar-bg);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .session-item {
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: default;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            word-break: break-all;
+        }
+
+        .session-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: var(--button-bg);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--button-hover);
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+        }
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        /* 聊天主区域 */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            background: var(--user-msg-bg);
+            align-self: flex-end;
+            text-align: right;
+        }
+
+        .ai-message {
+            background: var(--ai-msg-bg);
+            align-self: flex-start;
+        }
+
+        .loading {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .input-area input:focus {
+            outline: none;
+            border-color: var(--button-bg);
+        }
+
+        .input-area button {
+            padding: 12px 20px;
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .input-area button:hover {
+            background: var(--button-hover);
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 侧边栏：会话列表 -->
+    <div class="sidebar">
+        <h3>会话</h3>
+        <div class="session-list">
+            <div class="session-item" id="currentSession">会话 ID: <span id="sessionIdDisplay">-</span></div>
+        </div>
+        <div class="session-actions">
+            <button class="btn" onclick="createNewSession()">+ 新建会话</button>
+            <button class="btn btn-danger" onclick="deleteCurrentSession()">🗑️ 删除会话</button>
+        </div>
+    </div>
+
+    <!-- 主聊天区 -->
+    <div class="main-chat">
+        <div class="chat-header">
+            <div>AI 助手</div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="切换亮/暗主题">🌓</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-message">你好！我是你的 AI 助手，请问有什么我可以帮你的吗？</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="请输入你的问题..." />
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始会话数据
+    let sessionId = generateId();
+    let userId = generateId() + 100000;
+
+    function generateId() {
+        return Date.now() + Math.floor(Math.random() * 10000);
+    }
+
+    // 初始化显示
+    document.getElementById('sessionIdDisplay').textContent = sessionId;
+
+    function addMessage(text, isUser = false) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+        messageDiv.textContent = text;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const prompt = input.value.trim();
+        if (!prompt) return;
+
+        addMessage(prompt, true);
+        input.value = '';
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.classList.add('message', 'ai-message', 'loading');
+        loadingDiv.textContent = 'AI 正在思考...';
+        document.getElementById('chatMessages').appendChild(loadingDiv);
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+
+        try {
+            const response = await fetch('http://localhost:10010/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, userId, prompt })
+            });
+
+            loadingDiv.remove();
+
+            if (response.ok) {
+                const data = await response.json();
+                const aiReply = data.reply || data.message || data.content || '抱歉，我无法理解你的问题。';
+                addMessage(aiReply, false);
+            } else {
+                addMessage(`❌ 请求失败：${response.status}`, false);
+            }
+        } catch (error) {
+            loadingDiv.remove();
+            addMessage(`⚠️ 网络错误：${error.message}`, false);
+        }
+    }
+
+    function createNewSession() {
+        sessionId = generateId();
+        document.getElementById('sessionIdDisplay').textContent = sessionId;
+        document.getElementById('chatMessages').innerHTML = '<div class="message ai-message">新会话已创建！请问有什么我可以帮你的吗？</div>';
+    }
+
+    function deleteCurrentSession() {
+        if (confirm('确定要删除当前会话吗？')) {
+            document.getElementById('chatMessages').innerHTML = '<div class="message ai-message">会话已清空。</div>';
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+    }
+
+    // 恢复上次主题
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+    });
+
+    // 回车发送
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+</body>
+</html>
