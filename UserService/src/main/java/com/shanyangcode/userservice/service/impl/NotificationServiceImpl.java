@@ -5,6 +5,7 @@ import com.shanyangcode.common.constant.MessageTypeConstant;
 import com.shanyangcode.common.utils.SnowflakeUtil;
 import com.shanyangcode.userservice.constant.KafkaTopicConstant;
 import com.shanyangcode.userservice.model.dto.FriendApplicationNotificationDTO;
+import com.shanyangcode.userservice.model.dto.NewSessionNotificationDTO;
 import com.shanyangcode.userservice.model.dto.SystemNotificationMessage;
 import com.shanyangcode.userservice.service.NotificationService;
 
@@ -109,6 +110,32 @@ public class NotificationServiceImpl implements NotificationService {
                         notificationName, message.getMessageId(), message.getReceiverId(), ex.getMessage());
             }
         });
+    }
+
+    // NotificationServiceImpl.java
+    @Override
+    public void pushNewSession(Long senderId, Long userId, Long sessionId, Integer sessionType, NewSessionNotificationDTO notification) {
+        try {
+            SystemNotificationMessage message = new SystemNotificationMessage();
+            message.setMessageId(generateMessageId());
+            message.setSessionId(sessionId);
+            message.setSenderId(senderId);
+            message.setReceiverId(userId);
+            message.setType(MessageTypeConstant.TYPE_SYSTEM_NEW_SESSION); // 102
+            message.setSessionType(sessionType);
+            message.setTimestamp(System.currentTimeMillis());
+
+            // 构建body
+            Map<String, Object> body = new HashMap<>();
+            body.put("sessionName", notification.getSessionName());
+            body.put("avatar", notification.getAvatar());
+            message.setBody(body);
+
+            sendNotification(message, "新会话通知");
+
+        } catch (Exception e) {
+            log.error("发送新会话通知失败，用户ID: {}, 会话ID: {}, 错误: {}", userId, sessionId, e.getMessage(), e);
+        }
     }
 
 

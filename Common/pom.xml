@@ -29,6 +29,15 @@
         <java.version>17</java.version>
     </properties>
 
+    <dependencies>
+        <!-- MyBatis-Plus 分页插件由 Common 中的 MybatisPlusConfig 使用 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

@@ -3,7 +3,9 @@ package com.shanyangcode.userservice.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shanyangcode.common.model.dto.PageRequest;
+import com.shanyangcode.initproject.model.entity.User;
 import com.shanyangcode.userservice.model.dto.FriendDTO;
+import com.shanyangcode.userservice.model.dto.ModifyFriendApplicationResponse;
 import com.shanyangcode.userservice.model.entity.Friend;
 import com.shanyangcode.userservice.model.vo.FriendDetailVO;
 
@@ -36,4 +38,43 @@ public interface FriendService extends IService<Friend> {
     FriendDetailVO getFriendDetails(String userId, String friendId);
 
     IPage<FriendDTO> getFriends(String userId, PageRequest pageRequest, String key);
+
+    /**
+     * 删除好友关系
+     * <p>
+     * 处理流程：
+     * 1. 删除双向好友关系
+     * 2. 删除相关的好友申请记录
+     * 3. 删除会话和用户会话关系
+     *
+     * @param userId   当前用户ID
+     * @param friendId 好友ID
+     * @return 删除是否成功
+     */
+    boolean deleteFriend(Long userId, Long friendId);
+
+    /**
+     * 拉黑好友
+     *
+     * @param userId   当前用户ID
+     * @param friendId 好友ID
+     * @return 更新是否成功
+     */
+    boolean blockFriend(Long userId, Long friendId);
+
+    /**
+     * 取消拉黑好友
+     *
+     * @param userId   当前用户ID
+     * @param friendId 好友ID
+     * @return 更新是否成功
+     */
+    boolean unblockFriend(Long userId, Long friendId);
+
+    /**
+     * 通过好友申请后创建双向好友关系及单聊会话。
+     */
+    ModifyFriendApplicationResponse addFriend(User recipient, Long friendId);
+
+
 }

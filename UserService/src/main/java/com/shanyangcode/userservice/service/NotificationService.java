@@ -1,6 +1,7 @@
 package com.shanyangcode.userservice.service;
 
 import com.shanyangcode.userservice.model.dto.FriendApplicationNotificationDTO;
+import com.shanyangcode.userservice.model.dto.NewSessionNotificationDTO;
 
 /**
  * 通知推送服务接口
@@ -22,4 +23,10 @@ public interface NotificationService {
      * @param notification 好友申请通知信息
      */
     void pushNewApply(Long userId, FriendApplicationNotificationDTO notification);
+
+    /**
+     * 推送好友申请通过后创建的新会话通知。
+     */
+    void pushNewSession(Long senderId, Long userId, Long sessionId, Integer sessionType,
+                        NewSessionNotificationDTO notification);
 }
