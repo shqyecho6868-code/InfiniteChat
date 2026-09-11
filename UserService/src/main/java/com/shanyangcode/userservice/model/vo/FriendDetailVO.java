@@ -3,7 +3,6 @@ package com.shanyangcode.userservice.model.vo;
 import java.io.Serial;
 import java.io.Serializable;
 
-import com.shanyangcode.userservice.mapper.FriendMapper;
 import lombok.Data;
 
 /**
@@ -62,5 +61,4 @@ public class FriendDetailVO implements Serializable {
      */
     private Integer status;
 
-    private final FriendMapper friendMapper;
 }

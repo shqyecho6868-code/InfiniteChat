@@ -9,14 +9,13 @@ import com.shanyangcode.common.utils.JwtUtil;
 
 import com.shanyangcode.userservice.constant.UserConstant;
 
-import com.shanyangcode.userservice.model.dto.UpdateAvatarRequest;
-import com.shanyangcode.initproject.model.dto.UserLoginCodeRequest;
-import com.shanyangcode.initproject.model.dto.UserLoginPasswordRequest;
-import com.shanyangcode.initproject.model.dto.UserRegisterRequest;
+import com.shanyangcode.userservice.model.dto.request.UpdateAvatarRequest;
+import com.shanyangcode.userservice.model.dto.request.UserLoginCodeRequest;
+import com.shanyangcode.userservice.model.dto.request.UserLoginPasswordRequest;
+import com.shanyangcode.userservice.model.dto.request.UserRegisterRequest;
 import com.shanyangcode.initproject.model.vo.LoginAndRegisterResponse;
 import com.shanyangcode.initproject.model.vo.TokenResponse;
 import com.shanyangcode.userservice.model.vo.UploadUrlResponse;
-import com.shanyangcode.initproject.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,7 +57,7 @@ public class UserController {
 
 
     @PostMapping("/login/code")
-    public BaseResponse<LoginAndRegisterResponse> loginCode(@Valid @RequestBody com.shanyangcode.initproject.model.dto.UserLoginCodeRequest userLoginCodeRequest) {
+    public BaseResponse<LoginAndRegisterResponse> loginCode(@Valid @RequestBody UserLoginCodeRequest userLoginCodeRequest) {
         return ResultUtils.success(userService.loginCode(userLoginCodeRequest));
     }
 

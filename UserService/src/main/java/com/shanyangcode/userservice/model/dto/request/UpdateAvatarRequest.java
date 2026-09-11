@@ -1,4 +1,4 @@
-package com.shanyangcode.userservice.model.dto;
+package com.shanyangcode.userservice.model.dto.request;
 
 
 import lombok.Data;

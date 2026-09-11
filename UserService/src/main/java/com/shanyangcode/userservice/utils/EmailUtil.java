@@ -1,6 +1,6 @@
 package com.shanyangcode.initproject.utils;
 
-import com.shanyangcode.initproject.constant.UserConstant;
+import com.shanyangcode.userservice.constant.UserConstant;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

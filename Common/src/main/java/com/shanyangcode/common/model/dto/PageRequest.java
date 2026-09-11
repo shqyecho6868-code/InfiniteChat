@@ -1,4 +1,4 @@
-package com.shanyangcode.userservice.model.dto;
+package com.shanyangcode.common.model.dto;
 
 import java.io.Serial;
 import java.io.Serializable;

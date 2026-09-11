@@ -1,13 +1,13 @@
 package com.shanyangcode.initproject.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.shanyangcode.initproject.model.dto.UserLoginCodeRequest;
-import com.shanyangcode.initproject.model.dto.UserLoginPasswordRequest;
-import com.shanyangcode.initproject.model.dto.UserRegisterRequest;
+import com.shanyangcode.userservice.model.dto.request.UserLoginCodeRequest;
+import com.shanyangcode.userservice.model.dto.request.UserLoginPasswordRequest;
+import com.shanyangcode.userservice.model.dto.request.UserRegisterRequest;
 import com.shanyangcode.initproject.model.entity.User;
 import com.shanyangcode.initproject.model.vo.LoginAndRegisterResponse;
 import com.shanyangcode.initproject.model.vo.TokenResponse;
-import com.shanyangcode.userservice.model.dto.UpdateAvatarRequest;
+import com.shanyangcode.userservice.model.dto.request.UpdateAvatarRequest;
 import com.shanyangcode.userservice.model.vo.UploadUrlResponse;
 
 import java.util.Map;

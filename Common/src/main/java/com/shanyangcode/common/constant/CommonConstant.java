@@ -48,4 +48,14 @@ public class CommonConstant {
     public static final Integer USER_ROLE_NORMAL = 2;
 
     public static final Integer SESSION_STATUS = 0;
+
+    /**
+     * 系统通知消息 Kafka 主题
+     */
+    public static final String KAFKA_SYSTEM_NOTIFICATION_TOPIC = "system-notification-topic";
+
+    /**
+     * 系统通知持久化 Kafka 主题
+     */
+    public static final String KAFKA_STORE_NOTIFICATION_TOPIC = "store-notification-topic";
 }

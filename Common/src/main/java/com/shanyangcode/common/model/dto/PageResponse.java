@@ -1,4 +1,4 @@
-package com.shanyangcode.userservice.model.dto;
+package com.shanyangcode.common.model.dto;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.AllArgsConstructor;
