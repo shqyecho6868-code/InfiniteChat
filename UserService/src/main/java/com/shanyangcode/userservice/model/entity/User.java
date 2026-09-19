@@ -1,4 +1,4 @@
-package com.shanyangcode.initproject.model.entity;
+package com.shanyangcode.userservice.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

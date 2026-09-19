@@ -1,4 +1,4 @@
-package com.shanyangcode.initproject.model.vo;
+package com.shanyangcode.userservice.model.vo;
 
 import lombok.Data;
 

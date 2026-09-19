@@ -13,8 +13,8 @@ import com.shanyangcode.userservice.model.dto.request.UpdateAvatarRequest;
 import com.shanyangcode.userservice.model.dto.request.UserLoginCodeRequest;
 import com.shanyangcode.userservice.model.dto.request.UserLoginPasswordRequest;
 import com.shanyangcode.userservice.model.dto.request.UserRegisterRequest;
-import com.shanyangcode.initproject.model.vo.LoginAndRegisterResponse;
-import com.shanyangcode.initproject.model.vo.TokenResponse;
+import com.shanyangcode.userservice.model.vo.LoginAndRegisterResponse;
+import com.shanyangcode.userservice.model.vo.TokenResponse;
 import com.shanyangcode.userservice.model.vo.UploadUrlResponse;
 import io.jsonwebtoken.Claims;
 import jakarta.annotation.Resource;
@@ -34,7 +34,7 @@ import java.util.Map;
 public class UserController {
 
     @Resource
-    private com.shanyangcode.initproject.service.UserService userService;
+    private com.shanyangcode.userservice.service.UserService userService;
 
     @GetMapping("/sendCaptcha")
     public BaseResponse<String> sendCaptcha(@NotBlank(message = "邮箱不能为空") @Email(message = "邮箱格式不正确")  @RequestParam String targetEmail) {

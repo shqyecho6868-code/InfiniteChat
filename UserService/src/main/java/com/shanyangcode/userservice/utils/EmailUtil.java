@@ -1,4 +1,4 @@
-package com.shanyangcode.initproject.utils;
+package com.shanyangcode.userservice.utils;
 
 import com.shanyangcode.userservice.constant.UserConstant;
 

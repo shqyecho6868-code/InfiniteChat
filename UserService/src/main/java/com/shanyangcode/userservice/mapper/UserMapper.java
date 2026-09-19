@@ -1,7 +1,7 @@
 package com.shanyangcode.userservice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.shanyangcode.initproject.model.entity.User;
+import com.shanyangcode.userservice.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
 

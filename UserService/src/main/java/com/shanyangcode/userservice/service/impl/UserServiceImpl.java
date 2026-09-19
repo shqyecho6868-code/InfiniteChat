@@ -3,6 +3,7 @@ package com.shanyangcode.userservice.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shanyangcode.common.constant.CommonConstant;
@@ -10,17 +11,18 @@ import com.shanyangcode.common.constant.SessionTypeConstant;
 import com.shanyangcode.common.utils.JwtUtil;
 import com.shanyangcode.common.common.ErrorCode;
 import com.shanyangcode.common.exception.ThrowUtils;
+import com.shanyangcode.common.model.vo.UserInfosResponse;
 import com.shanyangcode.userservice.mapper.UserMapper;
 import com.shanyangcode.userservice.model.dto.request.UserLoginCodeRequest;
 import com.shanyangcode.userservice.model.dto.request.UserLoginPasswordRequest;
 import com.shanyangcode.userservice.model.dto.request.UserRegisterRequest;
-import com.shanyangcode.initproject.model.entity.User;
-import com.shanyangcode.initproject.model.vo.LoginAndRegisterResponse;
-import com.shanyangcode.initproject.model.vo.TokenResponse;
-import com.shanyangcode.initproject.service.UserService;
+import com.shanyangcode.userservice.model.entity.User;
+import com.shanyangcode.userservice.model.vo.LoginAndRegisterResponse;
+import com.shanyangcode.userservice.model.vo.TokenResponse;
+import com.shanyangcode.userservice.service.UserService;
 
-import com.shanyangcode.initproject.utils.EmailUtil;
-import com.shanyangcode.initproject.utils.RandomCodeUtil;
+import com.shanyangcode.userservice.utils.EmailUtil;
+import com.shanyangcode.userservice.utils.RandomCodeUtil;
 import com.shanyangcode.userservice.constant.UserConstant;
 import com.shanyangcode.userservice.model.dto.request.UpdateAvatarRequest;
 import com.shanyangcode.userservice.model.entity.Session;
@@ -39,6 +41,7 @@ import org.springframework.util.DigestUtils;
 import com.shanyangcode.userservice.loadbalancer.NettyServiceLocator;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -288,6 +291,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.in("user_id", userIds);
         List<User> users = this.list(queryWrapper);
         return users.stream().collect(Collectors.toMap(User::getUserId, User::getNickname));
+    }
+
+    @Override
+    public Map<Long, UserInfosResponse> getUserInfos(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        Map<Long, UserInfosResponse> userInfosResponses = new HashMap<>();
+
+        // 使用 Lambda Wrapper
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(User::getUserId, userIds);
+        List<User> users = this.list(queryWrapper);
+
+        if (users != null && !users.isEmpty()) {
+            users.forEach(user -> {
+                UserInfosResponse userInfosResponse = new UserInfosResponse();
+                BeanUtil.copyProperties(user, userInfosResponse);
+                userInfosResponses.put(user.getUserId(), userInfosResponse);
+            });
+        }
+        return userInfosResponses;
     }
 }
 

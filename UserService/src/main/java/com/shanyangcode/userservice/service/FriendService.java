@@ -3,7 +3,7 @@ package com.shanyangcode.userservice.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shanyangcode.common.model.dto.PageRequest;
-import com.shanyangcode.initproject.model.entity.User;
+import com.shanyangcode.userservice.model.entity.User;
 import com.shanyangcode.userservice.model.dto.FriendDTO;
 import com.shanyangcode.userservice.model.dto.ModifyFriendApplicationResponse;
 import com.shanyangcode.userservice.model.entity.Friend;
