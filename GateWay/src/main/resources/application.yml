@@ -1,59 +1,12 @@
 spring:
   application:
     name: GateWay
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://IP:49152/InfiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: gK3T9n%q2M@j7Z4
-  data:
-    redis:
-      database: 2
-      host: IP
-      port: 59000
-      password: e65K4t8w2
-      timeout: 30000
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   main:
     web-application-type: reactive
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:18375
-    gateway:
-      server:
-        webflux:
-          httpclient:
-            connect-timeout: 60000
-            response-timeout: 60000
-          globalcors:
-            add-to-simple-url-handler-mapping: true
-            cors-configurations:
-              '[/**]':
-                allowedOrigins:
-                  - "http://localhost:10010"
-                allowedMethods:
-                  - "GET"
-                  - "POST"
-                  - "PUT"
-                  - "DELETE"
-                  - "PATCH"
-                  - "OPTIONS"
-                allowedHeaders: "*"
-                allowCredentials: true
-                maxAge: 36000
-          routes:
-            - id: UserService
-              uri: lb://UserService
-              predicates:
-                - Path=/api/user/**
-            - id: OfflineDataService
-              uri: lb://OfflineDataService
-              predicates:
-                - Path=/api/message/**
-            - id: AiService
-              uri: lb://AiService
-              predicates:
-                - Path=/api/ai/**
 
 server:
   port: 10010

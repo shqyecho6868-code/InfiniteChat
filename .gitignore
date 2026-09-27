@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local and secret files ###
+.DS_Store
+.env
+*.env
+app.env
+*.pem
+*.key
+*.p12
+*.jks
+*.log
+*.jar

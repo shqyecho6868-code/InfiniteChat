@@ -1,0 +1,56 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/InfiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+
+  data:
+    redis:
+      database: 2
+      host: redis
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      timeout: 30000
+
+  kafka:
+    bootstrap-servers: kafka:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+
+    consumer:
+      group-id: infinite-chat-push-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: true
+      auto-commit-interval: 1000
+
+  cloud:
+    nacos:
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+      discovery:
+        server-addr: nacos:8848
+
+canal:
+  server:
+    host: canal-server
+    port: 11111
+
+  destination: example
+  username: ""
+  password: ""
+
+  filter: 'InfiniteChat\..*'
+
+  client:
+    heartbeat:
+      interval: 2000
+      timeout: 30000
+    socket:
+      timeout: 60000

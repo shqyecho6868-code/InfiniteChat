@@ -1,0 +1,60 @@
+spring:
+  data:
+    redis:
+      database: 2
+      host: 127.0.0.1
+      port: 59000
+      password: ${REDIS_PASSWORD}
+      timeout: 30000
+
+  cloud:
+    nacos:
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+      discovery:
+        server-addr: 127.0.0.1:18375
+
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 60000
+            response-timeout: 60000
+
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:10010"
+                allowedMethods:
+                  - "GET"
+                  - "POST"
+                  - "PUT"
+                  - "DELETE"
+                  - "PATCH"
+                  - "OPTIONS"
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 36000
+
+          routes:
+            - id: UserService
+              uri: lb://UserService
+              predicates:
+                - Path=/api/user/**,/api/contact/**,/api/group/**
+
+            - id: OfflineDataService
+              uri: lb://OfflineDataService
+              predicates:
+                - Path=/api/message/**
+
+            - id: AiService
+              uri: lb://AiService
+              predicates:
+                - Path=/api/ai/**
+
+            - id: RedPacketService
+              uri: lb://RedPacketService
+              predicates:
+                - Path=/api/chat/redPacket/**

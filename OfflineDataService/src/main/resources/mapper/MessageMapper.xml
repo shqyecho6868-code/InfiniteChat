@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shanyangcode.offlinedataservice.mapper.MessageMapper">
 
-    <resultMap id="BaseResultMap" type="com.shanyangcode.offlinedataservice.model.Message">
+    <resultMap id="BaseResultMap" type="com.shanyangcode.offlinedataservice.model.entity.Message">
         <id property="messageId" column="message_id" />
         <result property="senderId" column="sender_id" />
         <result property="sessionId" column="session_id" />

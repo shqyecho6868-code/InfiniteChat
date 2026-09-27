@@ -1,56 +1,9 @@
+server:
+  port: 8101
+
 spring:
   application:
     name: OfflineDataService
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/InfiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 12345678
-
-  data:
-    redis:
-      database: 2
-      host: localhost
-      port: 6379
-      password: e65K4t8w2
-      timeout: 30000
-
-  kafka:
-    bootstrap-servers: localhost:9092
-
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      acks: all
-      retries: 3
-
-    consumer:
-      group-id: infinite-chat-push-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable-auto-commit: true
-      auto-commit-interval: 1000
-
-server:
-  port: 8101
-
-canal:
-  server:
-    host: localhost
-    port: 11111
-
-  destination: example
-  username: ""
-  password: ""
-
-  # 只订阅 InfiniteChat 数据库
-  filter: 'InfiniteChat\..*'
-
-  client:
-    heartbeat:
-      interval: 2000
-      timeout: 30000
-    socket:
-      timeout: 60000
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}

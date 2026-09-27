@@ -1,20 +1,32 @@
 spring:
   data:
     redis:
-      host: xxxxxx
-      port: 59000
-      password: e65K4t8w2
+      host: redis
+      port: 6379
+      password: ${REDIS_PASSWORD}
       ttl: 3600
       timeout: 30000
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/InfiniteChat?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+
+  cloud:
+    nacos:
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:nacos}
+      discovery:
+        server-addr: nacos:8848
+
 pgvector:
   database: dp
-  host: xxxxx
-  port : 54328
+  host: pgvector
+  port: 5432
   user: root
-  password: e65K4t7z1
-  table: agent_embedding
-
+  password: ${PGVECTOR_PASSWORD}
+  table: dp_embedding
 
 rag:
   docs-path: /data/docs

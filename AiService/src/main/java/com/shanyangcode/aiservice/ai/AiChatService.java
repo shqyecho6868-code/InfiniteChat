@@ -11,6 +11,7 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,7 +22,7 @@ public class AiChatService {
     private ChatModel chatModel;
 
     @Resource
-    private McpToolProvider mcpToolProvider;
+    private ObjectProvider<McpToolProvider> mcpToolProvider;
 
     @Resource
     private RedisChatMemoryStore redisChatMemoryStore;
@@ -41,7 +42,7 @@ public class AiChatService {
     @Bean
     public AiChat aiChat() {
 
-        return AiServices.builder(AiChat.class)
+        var builder = AiServices.builder(AiChat.class)
                 .chatModel(chatModel)
                 .streamingChatModel(streamingChatModel)
                 .contentRetriever(contentRetriever)
@@ -52,9 +53,14 @@ public class AiChatService {
                         .chatMemoryStore(redisChatMemoryStore)
                         .maxMessages(20)
                         .build())
-                .tools(new TimeTool(), ragTool, emailTool)
-                .toolProvider(mcpToolProvider)
-                .build();
+                .tools(new TimeTool(), ragTool, emailTool);
+
+        McpToolProvider provider = mcpToolProvider.getIfAvailable();
+        if (provider != null) {
+            builder.toolProvider(provider);
+        }
+
+        return builder.build();
     }
 
 }
